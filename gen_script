@@ -4,7 +4,7 @@
 make_bash()
 {
 
-cat << 'BASH_EOT' > $1
+cat << BASH_EOT > $1
 #!/bin/bash
 #
 [ ${DEBUG:=0} -eq 1 ] && set -x
@@ -59,7 +59,7 @@ BASH_EOT
 make_perl()
 {
 
-cat << 'PERL_EOT' > $1
+cat << PERL_EOT > $1
 #!/usr/bin/perl
 #
 use warnings;
