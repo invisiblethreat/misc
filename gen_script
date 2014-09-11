@@ -1,0 +1,160 @@
+#!/bin/bash
+[ ${DEBUG:=0} -eq 1 ] && set -x
+
+make_bash()
+{
+
+cat << 'BASH_EOT' > $1
+#!/bin/bash
+#
+[ ${DEBUG:=0} -eq 1 ] && set -x
+#
+# Exit on error
+set -e
+
+help()
+{
+     printf "Usage: $0 <flags> -d<ebug>(optional)\n"
+}
+
+#######################################################################
+
+#options with trailing ':' need to have an argument specified
+while getopts ":c:abdh" OPTION
+do
+  case $OPTION in
+    h ) help
+      exit 0
+      ;;
+
+    a ) A="1"
+      ;;
+
+    b ) B="1"
+      ;;
+
+    c ) SCRIPT=$OPTARG
+      ;;
+
+    d ) set -x
+      ;;
+
+    * ) printf "Invalid flag.\n"
+      help
+      exit 1
+      ;;
+  esac
+done
+
+if [ $A -eq 1 ]
+then
+{
+     #test here and execute
+}
+fi
+BASH_EOT
+
+}
+
+make_perl()
+{
+
+cat << 'PERL_EOT' > $SCRIPT
+#!/usr/bin/perl
+#
+use warnings;
+use vars qw/ %opt /;
+
+sub init()
+{
+    use Getopt::Std;
+    my $opt_string = 'hvdf:';
+    getopts( "$opt_string", \%opt ) or usage();
+    usage() if $opt{h};
+}
+
+sub usage()
+{
+    print STDERR << "EOF";
+    usage: $0 [-hvd] [-f file]
+
+     -h        : this (help) message
+     -v        : verbose output
+     -d        : print debugging messages to stderr
+     -f file   : file containing something
+
+    example: $0 -v -d -f file
+
+    EOF
+        exit;
+}
+
+#######################################################################
+init();
+
+print STDERR "Verbose mode ON.\n" if $opt{v};
+print STDERR "Debugging mode ON.\n" if $opt{d};
+PERL_EOT
+}
+
+make_python()
+{
+cat << PY_EOT > $1
+#!/usr/bin/env python
+import argparse
+import sys
+
+parser = argparse.ArgumentParser()
+
+parser.add_argument("-c", "--config", default='', help="config file to use.")
+parser.add_argument("-n", "--name", default='scripted_scan', help="name of item.")
+
+args = parser.parse_args()
+
+if not args.config:
+    print "No config!"
+      sys.exit(1)
+PY_EOT
+}
+
+help()
+{
+    printf "$0 - Quick Templating of scripts\n"
+    printf "Usage: $0 -b<ash> xor -p<erl> <filename> -d<ebug>(optional)\n"
+}
+
+#######################################################################
+
+while getopts ":b:p:y:dh" OPTION
+do
+  case $OPTION in
+    h ) help
+      exit 0
+      ;;
+
+    b ) make_bash $OPTARG
+      ;;
+
+    p ) make_perl $OPTARG
+      ;;
+
+    y ) make_python $OPTARG
+     ;;
+
+    d ) set -x
+      ;;
+
+    * ) printf "Invalid flag.\n"
+      help
+      exit 1
+      ;;
+  esac
+done
+
+if [ "$#" -lt "2" ]
+then
+{
+    help
+    exit 1
+}
+fi

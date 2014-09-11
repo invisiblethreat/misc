@@ -1,4 +1,5 @@
 #!/bin/bash
+#ugh, should be using perl -F= -lane. Fix when on that machine.
 ID=$(xinput list|grep TouchPad|perl -pe 's/=/ /'|perl -lane 'print $F[6]')
 PROP=$(xinput list-props $ID|grep Enabled|perl -pe 's/[()]/ /g'|perl -lane 'print $F[2]')
 xinput set-prop $ID $PROP 0
