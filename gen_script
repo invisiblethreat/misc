@@ -59,7 +59,7 @@ BASH_EOT
 make_perl()
 {
 
-cat << 'PERL_EOT' > $SCRIPT
+cat << 'PERL_EOT' > $1
 #!/usr/bin/perl
 #
 use warnings;
