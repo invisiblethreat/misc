@@ -1,0 +1,59 @@
+#!/usr/bin/perl
+######################################################################
+
+use Getopt::Std;
+use vars qw / %opt /;
+
+sub help()
+{
+    printf STDERR "\t-t threshold where alarms will start\n";
+    printf STDERR "\t-e email address where the repots will go\n";
+    printf STDERR "\t-h Displays this help message\n";
+    exit;
+
+}
+
+sub init()
+{
+    my $opt_string = 'ht:e:';
+    getopts( "$opt_string", \%opt ) or help();
+    help() if $opt{h};
+    #need to check that the variables are defined and not undef
+    $thresh = $opt{t};
+    $email = $opt{e};
+}
+
+
+init();
+
+open(DF_OUTPUT, "df -kah |grep -v Filesystem |");
+
+while (<DF_OUTPUT>)
+{
+    chomp($output=<DF_OUTPUT>);
+    $output =~ s/\s+/ /g;  #remove padding throughout the rest of the string
+
+    ($fs,$size,$used,$avail,$pct_used,$mount) = split(/\s/,$output,6);
+    chomp($pct_used);
+    $pct_used =~ s/[\%-]//g;
+    if ( $pct_used >= $thresh )
+    {
+        chomp($host=`/bin/hostname`);
+        $to="$email";
+        $from= 'diskwatcher@example.com';
+        $subject="$host: $mount on $fs is at $pct_used\% capacity";
+ 
+        open(MAIL, "|/usr/sbin/sendmail -t");
+ 
+        ## Mail Header
+        print MAIL "To: $to\n";
+        print MAIL "From: $from\n";
+        print MAIL "Subject: $subject\n\n";
+
+        print MAIL "$pct_used\% usage is greater than the specified limit of $thresh\%\n";
+        print MAIL "\n\t-Diskwatcher\n";
+        close(MAIL);
+    }
+}
+
+close(DF_OUTPUT);
