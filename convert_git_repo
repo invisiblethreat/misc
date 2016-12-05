@@ -1,0 +1,18 @@
+#!/bin/bash
+
+# Convert a bare repo to a standard repo and push to a new remote
+LOC="github@github.com:user"
+
+if [ -z $1 ]; then
+  echo "Provide a repo name"
+  exit 1
+fi
+
+mkdir .git
+
+mv * .git
+git config --local --bool core.bare false
+git checkout master
+
+git remote add origin $LOC/$1.git
+git push -u origin master
