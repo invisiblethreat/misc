@@ -6,15 +6,39 @@ make_bash()
 
 cat << BASH_EOT > $1
 #!/bin/bash
-#
-[ ${DEBUG:=0} -eq 1 ] && set -x
+# If envar DEBUG isn't 0, print every command as it takes place
+[ \${DEBUG:=0} -eq 1 ] && set -x
 #
 # Exit on error
 set -e
 
+function success() {
+  COL='\033[0;32m'
+  RST='\033[0m'
+  printf "\${COL}\$1\${RST}\n"
+}
+
+function error() {
+  COL='\033[0;31m'
+  RST='\033[0m'
+  printf "\${COL}\$1\${RST}\n"
+}
+
+function warn() {
+  COL='\033[0;33m'
+  RST='\033[0m'
+  printf "\${COL}\$1\${RST}\n"
+}
+
+function error_exit() {
+  red "Failed to complete script"
+
+}
+trap error_exit ERR
+
 help()
 {
-     printf "Usage: $0 <flags> -d<ebug>(optional)\n"
+     printf "Usage: \$0 <flags> -d<ebug>(optional)\n"
 }
 
 #######################################################################
@@ -22,7 +46,7 @@ help()
 #options with trailing ':' need to have an argument specified
 while getopts ":c:abdh" OPTION
 do
-  case $OPTION in
+  case \$OPTION in
     h ) help
       exit 0
       ;;
@@ -33,7 +57,7 @@ do
     b ) B="1"
       ;;
 
-    c ) SCRIPT=$OPTARG
+    c ) SCRIPT=\$OPTARG
       ;;
 
     d ) set -x
@@ -46,7 +70,7 @@ do
   esac
 done
 
-if [ $A -eq 1 ]
+if [ \$A -eq 1 ]
 then
 {
      #test here and execute
@@ -120,7 +144,7 @@ PY_EOT
 help()
 {
     printf "$0 - Quick Templating of scripts\n"
-    printf "Usage: $0 -b<ash> xor -p<erl> <filename> -d<ebug>(optional)\n"
+    printf "Usage: $0 -b<bash> xor -y<python> xor -p<perl> <filename> -d<ebug>(optional)\n"
 }
 
 #######################################################################
