@@ -8,9 +8,14 @@ cat << BASH_EOT > $1
 #!/bin/bash
 # If envar DEBUG isn't 0, print every command as it takes place
 [ \${DEBUG:=0} -eq 1 ] && set -x
-#
+
+IFS=$'\n\t'
+# $* is all arguments passed in as a string
+# $@ is all arguments passed as an array 
+# IFS dictates how the above are treated and the defaut IFS is " "
+
 # Exit on error
-set -e
+set -euo pipefail
 
 function success() {
   COL='\033[0;32m'
@@ -31,7 +36,7 @@ function warn() {
 }
 
 function error_exit() {
-  red "Failed to complete script"
+  error "Failed to complete script"
 
 }
 trap error_exit ERR
@@ -69,6 +74,17 @@ do
       ;;
   esac
 done
+
+DEFAULT=${1:-default}
+#echo "Prompt for input"
+#read -p "Proceed? " -n 1 -r
+#echo
+#if [[ $REPLY =~ ^[Yy]$  ]]; then
+#  #do things here
+#else
+#  success "Not proceeding"
+#  exit 0
+#fi
 
 if [ \$A -eq 1 ]
 then
