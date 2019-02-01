@@ -9,60 +9,47 @@ cat << BASH_EOT > $1
 # If envar DEBUG isn't 0, print every command as it takes place
 [ \${DEBUG:=0} -eq 1 ] && set -x
 
-IFS=$'\n\t'
-# $* is all arguments passed in as a string
-# $@ is all arguments passed as an array 
+IFS=\$'\n\t'
+# \$* is all arguments passed in as a string
+# \$@ is all arguments passed as an array
 # IFS dictates how the above are treated and the defaut IFS is " "
 
 # Exit on error
-set -euo pipefail
+set -eo pipefail
 
-function success() {
-  COL='\033[0;32m'
+function colorize() {
+  COL='\033[0;3'\$1'm'
   RST='\033[0m'
-  printf "\${COL}\$1\${RST}\n"
+  printf "\${COL}\$2\${RST}\n"
 }
 
-function error() {
-  COL='\033[0;31m'
-  RST='\033[0m'
-  printf "\${COL}\$1\${RST}\n"
-}
+function error()   { colorize 1 "\$1"; }
+function success() { colorize 2 "\$1"; }
+function warn()    { colorize 3 "\$1"; }
+function info()    { colorize 6 "\$1"; }
 
-function warn() {
-  COL='\033[0;33m'
-  RST='\033[0m'
-  printf "\${COL}\$1\${RST}\n"
-}
+function error-exit() { error "Failed to complete script"; }
+trap error-exit ERR
+#trap cleanup EXIT
 
-function error_exit() {
-  error "Failed to complete script"
-
-}
-trap error_exit ERR
-
-help()
-{
-     printf "Usage: \$0 <flags> -d<ebug>(optional)\n"
+help() {
+  printf "Usage: \$0 <flags> -d<ebug>(optional)\n"
 }
 
 #######################################################################
 
 #options with trailing ':' need to have an argument specified
-while getopts ":c:abdh" OPTION
+while getopts ":b:adh" OPTION
 do
   case \$OPTION in
     h ) help
       exit 0
       ;;
 
-    a ) A="1"
+    a ) A="2"
       ;;
 
-    b ) B="1"
-      ;;
-
-    c ) SCRIPT=\$OPTARG
+    b ) SCRIPT=\$OPTARG
       ;;
 
     d ) set -x
@@ -75,25 +62,27 @@ do
   esac
 done
 
-DEFAULT=${1:-default}
-#echo "Prompt for input"
-#read -p "Proceed? " -n 1 -r
-#echo
-#if [[ $REPLY =~ ^[Yy]$  ]]; then
-#  #do things here
-#else
-#  success "Not proceeding"
-#  exit 0
-#fi
+# Default the value if it is unset
+A=\${A:=1}
+echo "A is \$A"
 
-if [ \$A -eq 1 ]
-then
-{
-     #test here and execute
-}
+echo "Prompt for input"
+read -p "Proceed? " -n 1 -r
+echo
+if [[ \$REPLY =~ ^[Yy]\$  ]]; then
+  info "proceeding"
+else
+  success "Not proceeding"
+  exit 0
+fi
+
+# This will trigger an exit without the -a argument
+if [ "\$A" -eq "1" ]; then
+  success "equal"
+else
+  warn "not equal"
 fi
 BASH_EOT
-
 }
 
 make_perl()
