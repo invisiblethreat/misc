@@ -1,0 +1,17 @@
+#!/bin/bash
+
+function yesterday(){
+  dayseconds=$((60 * 60 * 24))
+  now=$(date +%s)
+  yesterday=$(($now - $dayseconds))
+  res=""
+  if [ "$1" == "yyyy-mm" ]; then
+    res=$(date -d @$yesterday +%Y-%m)
+  else
+    res=$(date -d @$yesterday +%Y-%m-%d)
+  fi
+  echo $res
+}
+
+yesterday yyyy-mm
+yesterday
