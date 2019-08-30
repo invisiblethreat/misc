@@ -27,3 +27,9 @@ runtime 59
 runtime 61
 runtime 3601
 runtime 86401
+
+sleep 3
+
+# $SECONDS is built-in. If you want to count from somewhere other than the
+# start of execution, reset with SECONDS=0 where you want to begin timing.
+runtime $SECONDS
