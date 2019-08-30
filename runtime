@@ -1,0 +1,29 @@
+#!/bin/bash
+
+# For use with GNU date
+DATE="/bin/date"
+if [ $(uname) == "Darwin" ]; then
+  DATE="/usr/local/opt/coreutils/libexec/gnubin/date"
+fi
+function runtime() {
+  DAY=86400
+  HOUR=3600
+  MINUTE=60
+
+  if [ "$1" -ge "$DAY" ]; then
+    # Over one day needs to be computed by hand.
+    RUNTIME=$($DATE -u -d @$1 +''$(($1/$DAY))'d %-Hh %-Mm %-Ss')
+  elif [ "$1" -ge "$HOUR" ]; then
+    RUNTIME=$($DATE -u -d @$1 +'%-Hh %-Mm %-Ss')
+  elif [ "$1" -ge "$MINUTE" ];then
+    RUNTIME=$($DATE -u -d @$1 +'%-Mm %-Ss')
+  else
+    RUNTIME=$($DATE -u -d @$1 +'%-Ss')
+  fi
+  echo $RUNTIME
+}
+
+runtime 59
+runtime 61
+runtime 3601
+runtime 86401
