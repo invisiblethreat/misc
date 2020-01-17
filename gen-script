@@ -135,8 +135,8 @@ parser.add_argument("-n", "--name", default='scripted_scan', help="name of item.
 args = parser.parse_args()
 
 if not args.config:
-    print "No config!"
-      sys.exit(1)
+    print("No config!)"
+    sys.exit(1)
 PY_EOT
 }
 
