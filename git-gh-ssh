@@ -1,0 +1,8 @@
+#!/bin/bash
+echo "Old origin:"
+git remote -v
+old=$(git remote -v | grep fetch | awk '{print $2}')
+new=$(echo $old | sed 's|https://github.com/|git@github.com:|')
+git remote set-url origin $new
+echo "\nNew origin:"
+git remote -v
